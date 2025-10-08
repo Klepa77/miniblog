@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/register.css">
+</head>
+<body>
+    <form id="signup-form" class="form center">
+    <h2>Регистрация</h2>
+    <p>
+        <label for="email">Почта</label>
+        <input type="email" id="email">
+    </p>
+    <p>
+        <label for="password">Пароль</label>
+        <input type="password" id="password1">
+    </p>
+    <p>
+        <label for="password">Повторите пароль</label>
+        <input type="password" id="password2">
+    </p>
+    <p style="text-align: center">
+        Уже есть аккаунт?
+        <br>
+        Перейти на страницу <a href="./login.html">входа</a>
+    </p>
+    <button type="submit" id="login">Зарегистрироваться</button>
+</form>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-auth-compat.js"></script>
+<script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyA5yDpY90K13Srn4mZTXOGZH0ky9QK78cU",
+    authDomain: "blog-76211.firebaseapp.com",
+    projectId: "blog-76211",
+    storageBucket: "blog-76211.firebasestorage.app",
+    messagingSenderId: "241884104008",
+    appId: "1:241884104008:web:9828050f176b57a4b15f7d",
+    measurementId: "G-YGKRCMZ954"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+    <script src="../js/register.js" defer></script>
+</body>
+</html>
