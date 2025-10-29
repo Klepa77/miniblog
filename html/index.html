@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <article class="post">
+        <!-- <article class="post">
           <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop" alt="Превью статьи">
           <div>
             <div class="meta">HTML · 10 окт 2025 · 6 минут чтения</div>
@@ -86,8 +86,8 @@
             <button class="btn btn-edit" onclick="alert('Редактировать пост')">✏️</button>
             <button class="btn btn-delete" onclick="alert('Удалить пост?')">🗑️</button>
           </div>
-        </article>
-
+        </article> -->
+        <div class="article-container"></div>
         <div style="text-align:center;margin-top:4px">
           <a class="nav-link" href="#">Загрузить ещё</a>
         </div>
@@ -130,6 +130,18 @@
         </div>
       </aside>
     </main>
+
+    <div id="deleteModal" class="modal-overlay" style="display:none;">
+  <div class="modal-window">
+    <h3>Удалить пост?</h3>
+    <p>Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</p>
+    <div class="modal-actions">
+      <button class="btn btn-delete" onclick="confirmDelete()">Удалить</button>
+      <button class="btn btn-cancel " onclick="closeModal()">Отмена</button>
+    </div>
+  </div>
+</div>
+
 
     <footer>
       © 2025 — Блог о веб-разработке · Все права защищены
