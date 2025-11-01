@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="../css/index.css">
-    <!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Блог — Главная</title>
-  <meta name="description" content="Современный адаптивный макет главной страницы блога" />
 
-</head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../css/index.css">
+  <!doctype html>
+  <html lang="ru">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Блог — Главная</title>
+    <meta name="description" content="Современный адаптивный макет главной страницы блога" />
+
+  </head>
+
 <body>
   <div class="container">
     <header>
@@ -33,7 +36,7 @@
         <div class="search">
           <input type="search" placeholder="Поиск статей" aria-label="Поиск" />
         </div>
-        <a  class="nav-link" onclick="logout()" style='color:red' href="#">Выйти</a>
+        <a class="nav-link" onclick="logout()" style='color:red' href="#">Выйти</a>
       </nav>
     </header>
 
@@ -96,7 +99,8 @@
       <aside>
         <div class="card">
           <h4 style="margin:0 0 8px">О блоге</h4>
-          <p style="margin:0;color:var(--muted)">Кратко о том, кто ведёт блог и чему здесь учат. Ссылка на профиль и подписку.</p>
+          <p style="margin:0;color:var(--muted)">Кратко о том, кто ведёт блог и чему здесь учат. Ссылка на профиль и
+            подписку.</p>
         </div>
 
         <div class="card">
@@ -113,7 +117,8 @@
         <div class="card">
           <h4 style="margin:0 0 8px">Подписка</h4>
           <form onsubmit="event.preventDefault();alert('Спасибо за подписку!')">
-            <input type="email" placeholder="Email" required style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e9ef;margin-bottom:8px" />
+            <input type="email" placeholder="Email" required
+              style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e9ef;margin-bottom:8px" />
             <button class="btn" style="width:100%">Подписаться</button>
           </form>
         </div>
@@ -121,7 +126,8 @@
         <div class="card">
           <h4 style="margin:0 0 8px">Оставьте комментарий</h4>
           <form onsubmit="event.preventDefault();alert('Комментарий отправлен (демо)')">
-            <textarea placeholder="Ваш комментарий" style="width:100%;min-height:80px;padding:10px;border-radius:10px;border:1px solid #e6e9ef"></textarea>
+            <textarea placeholder="Ваш комментарий"
+              style="width:100%;min-height:80px;padding:10px;border-radius:10px;border:1px solid #e6e9ef"></textarea>
             <div style="margin-top:8px">
               <button class="nav-link" style="display:inline-block">Предпросмотр</button>
               <button class="btn" style="float:right">Отправить</button>
@@ -132,15 +138,67 @@
     </main>
 
     <div id="deleteModal" class="modal-overlay" style="display:none;">
-  <div class="modal-window">
-    <h3>Удалить пост?</h3>
-    <p>Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</p>
-    <div class="modal-actions">
-      <button class="btn btn-delete" onclick="confirmDelete()">Удалить</button>
-      <button class="btn btn-cancel " onclick="closeModal()">Отмена</button>
+      <div class="modal-window">
+        <h3>Удалить пост?</h3>
+        <p>Вы уверены, что хотите удалить этот пост? Это действие нельзя отменить.</p>
+        <div class="modal-actions">
+          <button class="btn btn-delete" onclick="confirmDelete()">Удалить</button>
+          <button class="btn btn-cancel " onclick="closeModal()">Отмена</button>
+        </div>
+          
+      </div>
     </div>
-  </div>
-</div>
+    <div id="editPostModal" class="modal-overlay" style="display: none;">
+      <div class="modal-window">
+        <h3>Редактирование поста</h3>
+        <form id="editPostForm" class="modal-form">
+          <label>
+            Заголовок
+            <input type="text" name="title" class="input-control" placeholder="Введите заголовок" required>
+          </label>
+
+          <label>
+            Краткое описание
+            <input type="text" name="short_desc" class="input-control" placeholder="Краткое описание" required>
+          </label>
+
+          <label>
+            Полное описание
+            <textarea name="full_desc" class="input-control" rows="4" placeholder="Расскажите подробнее..."
+              required></textarea>
+          </label>
+
+          <label>
+            Время чтения (мин)
+            <input type="number" name="reading_time" class="input-control" min="1" placeholder="Например: 5" required>
+          </label>
+
+          <label>
+            Категория
+            <select name="category" class="input-control" required>
+              <option value="">Выберите категорию</option>
+              <option value="tech">Технологии</option>
+              <option value="education">Образование</option>
+              <option value="lifestyle">Лайфстайл</option>
+              <option value="news">Новости</option>
+            </select>
+                  </label>
+
+          <label>
+            Ссылка на изображение
+            <input type="url" name="image_url" class="input-control" placeholder="https://example.com/image.jpg">
+          </label>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Редактировать</button>
+            <button type="button" class="btn btn-cancel">Отмена</button>
+          </div>
+        </form>
+           
+      </div>
+    </div>
+
+
 
 
     <footer>
@@ -148,29 +206,32 @@
     </footer>
   </div>
 </body>
+
 </html>
 </head>
+
 <body>
 
 
-<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-auth-compat.js"></script>
-<script>
+  <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-auth-compat.js"></script>
+  <script>
     const firebaseConfig = {
-    apiKey: "AIzaSyA5yDpY90K13Srn4mZTXOGZH0ky9QK78cU",
-    authDomain: "blog-76211.firebaseapp.com",
-    projectId: "blog-76211",
-    storageBucket: "blog-76211.firebasestorage.app",
-    messagingSenderId: "241884104008",
-    appId: "1:241884104008:web:9828050f176b57a4b15f7d",
-    measurementId: "G-YGKRCMZ954"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
+      apiKey: "AIzaSyA5yDpY90K13Srn4mZTXOGZH0ky9QK78cU",
+      authDomain: "blog-76211.firebaseapp.com",
+      projectId: "blog-76211",
+      storageBucket: "blog-76211.firebasestorage.app",
+      messagingSenderId: "241884104008",
+      appId: "1:241884104008:web:9828050f176b57a4b15f7d",
+      measurementId: "G-YGKRCMZ954"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 
-<script src="../js/scripts.js"defer></script>
+  <script src="../js/scripts.js" defer></script>
 </body>
+
 </html>

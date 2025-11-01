@@ -165,7 +165,9 @@ nav {
 .btn-create {
   background: var(--success)
 }
-
+.btn-cancel{
+  background: var(--danger)
+}
 .post {
   background: var(--card);
   padding: 18px;
@@ -339,4 +341,101 @@ footer {
     transform: scale(1);
   }
 
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-window {
+  background: var(--card);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 480px;
+  animation: scaleIn .25s ease;
+}
+
+.modal-window h3 {
+  margin-top: 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input-control {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: var(--bg);
+  font-size: 14px;
+  outline: none;
+}
+
+.input-control:focus {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.category-block {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.category-block legend {
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
