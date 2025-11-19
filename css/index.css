@@ -439,3 +439,7 @@ footer {
     transform: scale(1);
   }
 }
+
+.img{
+  cursor: pointer;
+}

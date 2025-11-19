@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../css/createForm.css">
+</head>
+<div class="container">
+  <h1>Создать новый пост</h1>
+  <form id="form-main">
+    <div>
+      <label for="title">Заголовок</label>
+      <input type="text" id="title" name="title" placeholder="Введите заголовок поста" required />
+    </div>
+
+    <div>
+      <label for="short_description">Краткое описание</label>
+      <textarea id="short_description" name="short_description" placeholder="Введите краткое описание поста"
+        required></textarea>
+    </div>
+
+    <div>
+      <label for="full_description">Полное описание</label>
+      <textarea id="full_description" name="full_description" placeholder="Введите полное описание поста"
+        required></textarea>
+    </div>
+
+    <div>
+      <label for="reading_time">Время чтения (в минутах)</label>
+      <input type="number" id="reading_time" name="reading_time" placeholder="Например: 5" min="1" required />
+    </div>
+
+    <div>
+      <label for="category">Категория</label>
+      <select id="category" name="category" required>
+        <option value="">Выберите категорию</option>
+        <option value="tech">Технологии</option>
+        <option value="education">Образование</option>
+        <option value="lifestyle">Лайфстайл</option>
+        <option value="news">Новости</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="photo">Фото</label>
+      <input type="text" id="photo" name="photo" placeholder="Вставьте ссылку на изображение" />
+    </div>
+
+    <button type="submit">Опубликовать</button>
+  </form>
+
+  <a href="index.html" class="back-link">← Назад к блогу</a>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.12.1/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA5yDpY90K13Srn4mZTXOGZH0ky9QK78cU",
+    authDomain: "blog-76211.firebaseapp.com",
+    projectId: "blog-76211",
+    storageBucket: "blog-76211.firebasestorage.app",
+    messagingSenderId: "241884104008",
+    appId: "1:241884104008:web:9828050f176b57a4b15f7d",
+    measurementId: "G-YGKRCMZ954"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+<script src="../js/createForm.js"></script>
+</body>
+
+</html>

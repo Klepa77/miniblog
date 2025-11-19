@@ -10,25 +10,13 @@ auth.onAuthStateChanged(user => {
     }
 })
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        db.collection('posts').onSnapshot(snapshot => {
-            let changes = snapshot.docChanges()
-            changes.forEach(element => {
-                if (element.type === 'added') {
-                    renderData({ ...element.doc.data(), id: element.doc.id })
-                }
-            })
-        })
-    }
-})
 
 let editmModal = document.getElementById('editPostModal')
 let inputTitle = document.querySelector('[name="title"]')
 let inputDescription = document.querySelector('[name="short_desc"]')
 let tetxAreaFull = document.querySelector('[name="full_desc"]')
-let readingTimeInput =document.querySelector('[name="reading_time"]')
-let categorys = document.querySelector('[name="category"]')  
+let readingTimeInput = document.querySelector('[name="reading_time"]')
+let categorys = document.querySelector('[name="category"]')
 let linkImage = document.querySelector('[name="image_url"]')
 
 
@@ -40,6 +28,12 @@ function renderData(postObject) {
     let image = document.createElement('img')
     image.className = 'img'
     image.src = postObject.photo
+
+    image.onclick=function(){
+        const id = postObject.id
+        location.href=`post.html?id=${id}`
+
+    }
 
     article.appendChild(image)
 
@@ -98,22 +92,22 @@ function renderData(postObject) {
 
         editId = e.target.id
 
-        auth.onAuthStateChanged((user)=>{
-           if(user){
-            db.collection('posts').doc(editId).get().then((doc)=>{
-                if(doc.exists){
-                    let data = doc.data()
-                    inputTitle.value = data.title
-                    inputDescription.value = data.textmesage
-                    tetxAreaFull.value = data.fullDescription
-                    readingTimeInput.value = data.readingTime
-                    categorys.value = data.category
-                    linkImage.value = data.photo
-                    
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                db.collection('posts').doc(editId).get().then((doc) => {
+                    if (doc.exists) {
+                        let data = doc.data()
+                        inputTitle.value = data.title
+                        inputDescription.value = data.textmesage
+                        tetxAreaFull.value = data.fullDescription
+                        readingTimeInput.value = data.readingTime
+                        categorys.value = data.category
+                        linkImage.value = data.photo
 
-                }
-            })
-           }
+
+                    }
+                })
+            }
         })
 
     })
@@ -149,12 +143,17 @@ auth.onAuthStateChanged((user) => {
         db.collection('posts').onSnapshot((snapshot) => {
             let changes = snapshot.docChanges()
             changes.forEach(el => {
-                console.log(el.type)
+               let parentDiv = document.getElementById(el.doc.id)
+               console.log(el.doc.data())
                 if (el.type == 'removed') {
-                    let parentDiv = document.getElementById(el.doc.id)
-                    console.log(parentDiv)
+                    
                     parentDiv.remove()
 
+                } else if (el.type === 'added') {
+                    renderData({ ...el.doc.data(), id: el.doc.id })
+                }else if(el.type == 'modified'){
+                    parentDiv.remove()
+                    renderData({ ...el.doc.data(), id: el.doc.id })
                 }
             })
         })
@@ -163,14 +162,40 @@ auth.onAuthStateChanged((user) => {
 
 
 function openEditModal() {
-    
+
     editmModal.style.display = 'flex'
 }
 
 
-function closeEditModal(){
-    editmModal.style.display='none'
+function closeEditModal() {
+    editmModal.style.display = 'none'
 }
 
 let editCloseButton = editmModal.querySelector('.btn-cancel')
-editCloseButton.onclick=closeEditModal
+editCloseButton.onclick = closeEditModal
+
+
+let editForm = document.querySelector('#editPostForm')
+
+editForm.addEventListener('submit', function (e) {
+    e.preventDefault()
+
+    let editPost = {
+        title: inputTitle.value,
+        textmesage: inputDescription.value,
+        fullDescription: tetxAreaFull.value,
+        readingTime: readingTimeInput.value,
+        category: categorys.value,
+        photo: linkImage.value,
+    }
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            let item = db.collection('posts').doc(editId)
+
+            item.get().then((doc) => item.update(editPost))
+        }
+        closeEditModal()
+    })
+
+})
