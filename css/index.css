@@ -443,3 +443,10 @@ footer {
 .img{
   cursor: pointer;
 }
+
+.tag{
+  cursor: pointer;
+}
+.tag:active{
+  border: 1px solid lightskyblue;
+}

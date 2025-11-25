@@ -1,15 +1,14 @@
 let deleteId
 let editId
-function logout() {
-    auth.signOut()
+function logout () {
+  auth.signOut()
 }
 
 auth.onAuthStateChanged(user => {
-    if (!user) {
-        location.href = 'login.html'
-    }
+  if (!user) {
+    location.href = 'login.html'
+  }
 })
-
 
 let editmModal = document.getElementById('editPostModal')
 let inputTitle = document.querySelector('[name="title"]')
@@ -18,184 +17,193 @@ let tetxAreaFull = document.querySelector('[name="full_desc"]')
 let readingTimeInput = document.querySelector('[name="reading_time"]')
 let categorys = document.querySelector('[name="category"]')
 let linkImage = document.querySelector('[name="image_url"]')
+let articleContainer = document.querySelector('.article-container')
 
+function renderData (postObject) {
+  let article = document.createElement('article')
+  article.id = postObject.id
+  article.className = 'post'
 
-function renderData(postObject) {
-    let article = document.createElement('article')
-    article.id = postObject.id
-    article.className = 'post'
+  let image = document.createElement('img')
+  image.className = 'img'
+  image.src = postObject.photo
 
-    let image = document.createElement('img')
-    image.className = 'img'
-    image.src = postObject.photo
+  image.onclick = function () {
+    const id = postObject.id
+    location.href = `post.html?id=${id}`
+  }
 
-    image.onclick=function(){
-        const id = postObject.id
-        location.href=`post.html?id=${id}`
+  article.appendChild(image)
 
+  let div = document.createElement('div')
+  let meta = document.createElement('div')
+  meta.className = 'meta'
+
+  meta.textContent = `${postObject.category} · ${postObject.date} · ${postObject.readingTime} минут чтения `
+
+  div.appendChild(meta)
+
+  let title = document.createElement('h3')
+  title.className = 'post-title'
+  title.textContent = postObject.title
+  div.appendChild(title)
+
+  let text = document.createElement('div')
+  text.className = 'post-body'
+  text.textContent = postObject.textmesage
+  div.appendChild(text)
+  let btnDelete = document.createElement('button')
+  let btnEdit = document.createElement('button')
+
+  auth.onAuthStateChanged(user => {
+    if (user.uid == postObject.user) {
+      let btnContainer = document.createElement('div')
+      btnContainer.className = 'post-actions'
+
+      btnEdit.id = postObject.id
+      btnEdit.className = 'btn btn-edit'
+      btnEdit.textContent = '✏'
+      btnContainer.appendChild(btnEdit)
+
+      article.appendChild(btnContainer)
+
+      btnDelete.id = postObject.id
+      btnDelete.className = 'btn btn-delete'
+      btnDelete.textContent = '🗑'
+      btnContainer.appendChild(btnDelete)
     }
+  })
+  article.appendChild(div)
+  div.className = 'post-data'
 
-    article.appendChild(image)
+  
+  articleContainer.appendChild(article)
 
-    let div = document.createElement('div')
-    let meta = document.createElement('div')
-    meta.className = 'meta'
+  btnDelete.addEventListener('click', function (e) {
+    openDeleteModal()
 
-    meta.textContent = `${postObject.category} · ${postObject.date} · ${postObject.readingTime} минут чтения `
+    deleteId = e.target.id
+  })
 
-    div.appendChild(meta)
+  btnEdit.addEventListener('click', function (e) {
+    openEditModal()
 
-    let title = document.createElement('h3')
-    title.className = 'post-title'
-    title.textContent = postObject.title
-    div.appendChild(title)
+    editId = e.target.id
 
-    let text = document.createElement('div')
-    text.className = 'post-body'
-    text.textContent = postObject.textmesage
-    div.appendChild(text)
-
-    let btnContainer = document.createElement('div')
-    btnContainer.className = 'post-actions'
-
-    let btnEdit = document.createElement('button')
-    btnEdit.id = postObject.id
-    btnEdit.className = 'btn btn-edit'
-    btnEdit.textContent = '✏'
-    btnContainer.appendChild(btnEdit)
-
-    article.appendChild(btnContainer)
-
-    let btnDelete = document.createElement('button')
-    btnDelete.id = postObject.id
-    btnDelete.className = 'btn btn-delete'
-    btnDelete.textContent = '🗑'
-    btnContainer.appendChild(btnDelete)
-
-    btnContainer.appendChild(btnDelete)
-
-    article.appendChild(div)
-    div.className = 'post-data'
-
-    let articleContainer = document.querySelector('.article-container')
-    articleContainer.appendChild(article)
-
-    btnDelete.addEventListener('click', function (e) {
-        openDeleteModal()
-
-        deleteId = e.target.id
-
-    })
-
-    btnEdit.addEventListener('click', function (e) {
-        openEditModal()
-
-        editId = e.target.id
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                db.collection('posts').doc(editId).get().then((doc) => {
-                    if (doc.exists) {
-                        let data = doc.data()
-                        inputTitle.value = data.title
-                        inputDescription.value = data.textmesage
-                        tetxAreaFull.value = data.fullDescription
-                        readingTimeInput.value = data.readingTime
-                        categorys.value = data.category
-                        linkImage.value = data.photo
-
-
-                    }
-                })
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.collection('posts')
+          .doc(editId)
+          .get()
+          .then(doc => {
+            if (doc.exists) {
+              let data = doc.data()
+              inputTitle.value = data.title
+              inputDescription.value = data.textmesage
+              tetxAreaFull.value = data.fullDescription
+              readingTimeInput.value = data.readingTime
+              categorys.value = data.category
+              linkImage.value = data.photo
             }
-        })
-
+          })
+      }
     })
-
+  })
 }
-
 
 let deleteModal = document.getElementById('deleteModal')
 let closeBtn = deleteModal.querySelector('.btn-cancel')
 
-function openDeleteModal() {
-    deleteModal.style.display = 'flex'
+function openDeleteModal () {
+  deleteModal.style.display = 'flex'
 }
 
-function closeDeleteModal() {
-    deleteModal.style.display = 'none'
+function closeDeleteModal () {
+  deleteModal.style.display = 'none'
 }
 
 closeBtn.onclick = closeDeleteModal
 
-function confirmDelete() {
-
-    auth.onAuthStateChanged(user => {
-        db.collection('posts').doc(deleteId).delete()
-
-    })
-    closeDeleteModal()
+function confirmDelete () {
+  auth.onAuthStateChanged(user => {
+    db.collection('posts').doc(deleteId).delete()
+  })
+  closeDeleteModal()
 }
 
-
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        db.collection('posts').onSnapshot((snapshot) => {
-            let changes = snapshot.docChanges()
-            changes.forEach(el => {
-               let parentDiv = document.getElementById(el.doc.id)
-               console.log(el.doc.data())
-                if (el.type == 'removed') {
-                    
-                    parentDiv.remove()
-
-                } else if (el.type === 'added') {
-                    renderData({ ...el.doc.data(), id: el.doc.id })
-                }else if(el.type == 'modified'){
-                    parentDiv.remove()
-                    renderData({ ...el.doc.data(), id: el.doc.id })
-                }
-            })
-        })
-    }
+auth.onAuthStateChanged(user => {
+  if (user) {
+    db.collection('posts').onSnapshot(snapshot => {
+      let changes = snapshot.docChanges()
+      changes.forEach(el => {
+        let parentDiv = document.getElementById(el.doc.id)
+        console.log(el.doc.data())
+        if (el.type == 'removed') {
+          parentDiv.remove()
+        } else if (el.type === 'added') {
+          renderData({ ...el.doc.data(), id: el.doc.id })
+        } else if (el.type == 'modified') {
+          parentDiv.remove()
+          renderData({ ...el.doc.data(), id: el.doc.id })
+        }
+      })
+    })
+  }
 })
 
-
-function openEditModal() {
-
-    editmModal.style.display = 'flex'
+function openEditModal () {
+  editmModal.style.display = 'flex'
 }
 
-
-function closeEditModal() {
-    editmModal.style.display = 'none'
+function closeEditModal () {
+  editmModal.style.display = 'none'
 }
 
 let editCloseButton = editmModal.querySelector('.btn-cancel')
 editCloseButton.onclick = closeEditModal
 
-
 let editForm = document.querySelector('#editPostForm')
 
 editForm.addEventListener('submit', function (e) {
-    e.preventDefault()
+  e.preventDefault()
 
-    let editPost = {
-        title: inputTitle.value,
-        textmesage: inputDescription.value,
-        fullDescription: tetxAreaFull.value,
-        readingTime: readingTimeInput.value,
-        category: categorys.value,
-        photo: linkImage.value,
+  let editPost = {
+    title: inputTitle.value,
+    textmesage: inputDescription.value,
+    fullDescription: tetxAreaFull.value,
+    readingTime: readingTimeInput.value,
+    category: categorys.value,
+    photo: linkImage.value
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      let item = db.collection('posts').doc(editId)
+
+      item.get().then(doc => item.update(editPost))
     }
-
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            let item = db.collection('posts').doc(editId)
-
-            item.get().then((doc) => item.update(editPost))
-        }
-        closeEditModal()
-    })
-
+    closeEditModal()
+  })
 })
+
+let categoryes = document.querySelectorAll('.tag')
+
+categoryes.forEach(el => {
+  el.addEventListener('click', function (e) {
+    let category = el.dataset.value
+    filterHandler(category)
+  })
+})
+
+function filterHandler (category) {
+  let querry = db
+    .collection('posts')
+    .where('category', '==', category)
+  querry.get().then(querySnapshot => {
+    articleContainer.innerHTML = ''
+    querySnapshot.forEach(doc => {
+      renderData({ ...doc.data(), id: doc.id })
+      console.log()
+    })
+  })
+}
