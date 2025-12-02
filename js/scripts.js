@@ -1,6 +1,6 @@
 let deleteId
 let editId
-function logout () {
+function logout() {
   auth.signOut()
 }
 
@@ -19,7 +19,7 @@ let categorys = document.querySelector('[name="category"]')
 let linkImage = document.querySelector('[name="image_url"]')
 let articleContainer = document.querySelector('.article-container')
 
-function renderData (postObject) {
+function renderData(postObject) {
   let article = document.createElement('article')
   article.id = postObject.id
   article.className = 'post'
@@ -76,7 +76,7 @@ function renderData (postObject) {
   article.appendChild(div)
   div.className = 'post-data'
 
-  
+
   articleContainer.appendChild(article)
 
   btnDelete.addEventListener('click', function (e) {
@@ -114,17 +114,17 @@ function renderData (postObject) {
 let deleteModal = document.getElementById('deleteModal')
 let closeBtn = deleteModal.querySelector('.btn-cancel')
 
-function openDeleteModal () {
+function openDeleteModal() {
   deleteModal.style.display = 'flex'
 }
 
-function closeDeleteModal () {
+function closeDeleteModal() {
   deleteModal.style.display = 'none'
 }
 
 closeBtn.onclick = closeDeleteModal
 
-function confirmDelete () {
+function confirmDelete() {
   auth.onAuthStateChanged(user => {
     db.collection('posts').doc(deleteId).delete()
   })
@@ -137,7 +137,6 @@ auth.onAuthStateChanged(user => {
       let changes = snapshot.docChanges()
       changes.forEach(el => {
         let parentDiv = document.getElementById(el.doc.id)
-        console.log(el.doc.data())
         if (el.type == 'removed') {
           parentDiv.remove()
         } else if (el.type === 'added') {
@@ -151,11 +150,11 @@ auth.onAuthStateChanged(user => {
   }
 })
 
-function openEditModal () {
+function openEditModal() {
   editmModal.style.display = 'flex'
 }
 
-function closeEditModal () {
+function closeEditModal() {
   editmModal.style.display = 'none'
 }
 
@@ -188,22 +187,70 @@ editForm.addEventListener('submit', function (e) {
 
 let categoryes = document.querySelectorAll('.tag')
 
-categoryes.forEach(el => {
-  el.addEventListener('click', function (e) {
-    let category = el.dataset.value
-    filterHandler(category)
+
+categoryes.forEach((el) => {
+
+  el.addEventListener('click', function (event) {
+    let category = event.target.dataset.value
+
+    if (category != 'all') {
+
+      filterHandler(category)
+    } else {
+      db.collection('posts').onSnapshot(snapshot => {
+        articleContainer.innerHTML = ''
+        snapshot.docs.forEach(doc => {
+          renderData({ ...doc.data(), id: doc.id })
+
+        })
+      })
+
+    }
+
+
   })
+
 })
 
-function filterHandler (category) {
-  let querry = db
-    .collection('posts')
-    .where('category', '==', category)
-  querry.get().then(querySnapshot => {
+function filterHandler(category) {
+  let query = db.collection('posts').where('category', '==', category)
+
+  query.get().then((snapchot) => {
     articleContainer.innerHTML = ''
-    querySnapshot.forEach(doc => {
+    snapchot.forEach((doc) => {
       renderData({ ...doc.data(), id: doc.id })
-      console.log()
+      console.log({ ...doc.data(), id: doc.id })
     })
   })
 }
+
+let formSearch = document.querySelector('.search')
+
+formSearch.addEventListener('submit', function (e) {
+  e.preventDefault()
+
+  let input = formSearch.querySelector('input')
+  let text = input.value
+  articleContainer.innerHTML=''
+  db.collection('posts').onSnapshot(snapshot => {
+    snapshot.docs.forEach(doc => {
+      if( 
+        doc.data().title.toLowerCase().includes(text) ||
+        doc.data().textmesage.toLowerCase().includes(text)
+      
+      ){
+        renderData({...doc.data(),id:doc.id})
+
+      }
+
+    })
+
+
+    })
+  })
+
+
+  formSearch.reset()
+
+
+

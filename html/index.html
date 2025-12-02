@@ -33,9 +33,9 @@
         <a class="nav-link" href="#">Категории</a>
         <a class="nav-link" href="#">Про меня</a>
         <a class="nav-link" href="#">Контакты</a>
-        <div class="search">
+        <form class="search">
           <input type="search" placeholder="Поиск статей" aria-label="Поиск" />
-        </div>
+        </form>
         <a class="nav-link" onclick="logout()" style='color:red' href="#">Выйти</a>
       </nav>
     </header>
@@ -106,6 +106,7 @@
         <div class="card">
           <h4 style="margin:0 0 8px">Категории</h4>
           <div class="tags">
+            <span data-value="all" class="tag">Все</span>
             <span data-value="tech" class="tag">Технологии</span>
             <span data-value="education" class="tag">Образование</span>
             <span data-value="lifestyle" class="tag">Лайфстайл</span>
