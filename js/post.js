@@ -1,7 +1,5 @@
 const params = new URLSearchParams(window.location.search)
-console.log(params)
 const id = params.get('id')
-console.log(id)
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -16,7 +14,7 @@ auth.onAuthStateChanged(user => {
   }
 })
 
-function renderData (postObject) {
+function renderData(postObject) {
   let img = document.querySelector('.post-cover')
   img.src = postObject.photo
 
@@ -36,5 +34,52 @@ function renderData (postObject) {
   let time = document.querySelector('.time')
   time.textContent = postObject.readingTime + ' ' + 'минут  чтения'
 
+
+}
+let formComments = document.querySelector('.comment-form')
+let commentCount = document.querySelector('.comment-count')
+
+formComments.addEventListener('submit', function (e) {
+  e.preventDefault()
+
+  let commentInput = formComments.querySelector('textarea')
+  let text = commentInput.value
+  let commentId = new Date().getTime()
+  let date = new Date().toLocaleString('ru-RU')
+  
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      db.collection('comments').doc('_' + commentId).set({
+
+        id: commentId,
+        text: text,
+        created_at: date,
+        user: user.uid,
+        post: id,
+      })
+      let comments = getComments()
+      comments.then((snapchot) => {
+        commentCount.textContent = snapchot.size
+      })
+    }
+  })
+
+  formComments.reset()
+})
+
+
+let query = getComments()
+
+
+query.then((snapchot) => {
+  commentCount.textContent = snapchot.size
+  snapchot.forEach((doc) => {
+    // Создать функцию генерации и отьрисовки комментариев на экране
+  })
+})
+
+
+function getComments() {
+  return db.collection('comments').where('post', '==', id).get()
 
 }
