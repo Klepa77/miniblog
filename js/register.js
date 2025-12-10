@@ -4,6 +4,7 @@ form.addEventListener('submit',function(e){
     let mail = document.getElementById('email').value
     let password1 = document.getElementById('password1').value
     let password2 = document.getElementById('password2').value
+    let username = document.getElementById('username').value
     if(!isvalidPassword(password1)){
         alert('Пароль должен содержать минимум 1 -заглавную, 1-строчную букву и 1-число ')
     }
@@ -13,7 +14,7 @@ form.addEventListener('submit',function(e){
     auth.createUserWithEmailAndPassword(mail,password1)
     .then(credentials=>{
          return db.collection('users').doc(credentials.user.uid)
-        .set({email:mail})
+        .set({email:mail,username:username})
         .then(()=>{
             form.reset()
             window.location.href='login.html'

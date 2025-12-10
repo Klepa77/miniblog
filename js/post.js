@@ -1,5 +1,6 @@
 const params = new URLSearchParams(window.location.search)
 const id = params.get('id')
+let commentsContainer = document.querySelector('.comments-container')
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -46,27 +47,47 @@ formComments.addEventListener('submit', function (e) {
   let text = commentInput.value
   let commentId = new Date().getTime()
   let date = new Date().toLocaleString('ru-RU')
-  
+
+
   auth.onAuthStateChanged((user) => {
-    if (user) {
-      db.collection('comments').doc('_' + commentId).set({
+    if (!user) return;
 
-        id: commentId,
-        text: text,
-        created_at: date,
-        user: user.uid,
-        post: id,
-      })
-      let comments = getComments()
-      comments.then((snapchot) => {
-        commentCount.textContent = snapchot.size
-      })
-    }
+    let data = {
+      id: commentId,
+      text: text,
+      created_at: date,
+      user: user.uid,
+      post: id,
+    };
+
+    db.collection('users')
+      .doc(user.uid)
+      .get()
+      .then((doc) => {
+        const username = doc.data().username;
+        data.author = username;
+
+        db.collection('comments')
+          .doc('_' + commentId)
+          .set(data)
+
+        let comments = getComments()
+
+        comments.then((snapchot) => {
+          commentCount.textContent = snapchot.size
+
+          commentsContainer.innerHTML = ''
+
+          snapchot.forEach((el) => {
+            let comment = el.data()
+            renderComments(comment)
+          })
+        })
+
+      });
+    formComments.reset()
   })
-
-  formComments.reset()
 })
-
 
 let query = getComments()
 
@@ -75,6 +96,7 @@ query.then((snapchot) => {
   commentCount.textContent = snapchot.size
   snapchot.forEach((doc) => {
     // Создать функцию генерации и отьрисовки комментариев на экране
+    renderComments(doc.data())
   })
 })
 
@@ -82,4 +104,18 @@ query.then((snapchot) => {
 function getComments() {
   return db.collection('comments').where('post', '==', id).get()
 
+}
+
+function renderComments(comment) {
+
+  let divComment = document.createElement('div')
+  divComment.className = 'comment'
+  let author = document.createElement('strong')
+  author.textContent = comment.author
+  divComment.appendChild(author)
+  let text = document.createElement('p')
+  text.textContent = comment.text
+  divComment.appendChild(text)
+
+  commentsContainer.appendChild(divComment)
 }
