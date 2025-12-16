@@ -202,3 +202,47 @@ footer {
   }
 }
 
+.user-data{
+display: flex;
+justify-content: space-between;
+align-items: center;
+
+}
+
+.btn-container{
+  display: flex;
+  gap:10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-window {
+  background: var(--card);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  width: 90%;
+  max-width: 480px;
+  animation: scaleIn .25s ease;
+}
+
+.modal-window h3 {
+  margin-top: 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
