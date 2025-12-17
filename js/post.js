@@ -3,6 +3,10 @@ const id = params.get('id')
 let commentsContainer = document.querySelector('.comments-container')
 let deleteId = ''
 let editId = ''
+let editModal = document.getElementById('editCommentModal')
+let textInput = document.querySelector('[name="title"]')
+let editForm = document.querySelector('#editCommentForm')
+
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -29,6 +33,7 @@ function renderData(postObject) {
 
   let category = document.querySelector('.category')
   category.textContent = postObject.category
+  console.log(postObject)
 
   let date = document.querySelector('.date')
   let dateValue = postObject.date.split(',')[0]
@@ -55,7 +60,6 @@ formComments.addEventListener('submit', function (e) {
     if (!user) return;
 
     let data = {
-      id: commentId,
       text: text,
       created_at: date,
       user: user.uid,
@@ -94,13 +98,7 @@ formComments.addEventListener('submit', function (e) {
 let query = getComments()
 
 
-query.then((snapchot) => {
-  // commentCount.textContent = snapchot.size
-  snapchot.forEach((doc) => {
-    // Создать функцию генерации и отьрисовки комментариев на экране
-    renderComments(doc.data())
-  })
-})
+
 
 
 function getComments() {
@@ -115,14 +113,14 @@ function renderComments(comment) {
   let btnDelete = document.createElement('button')
   let btnContainer = document.createElement('div')
   btnContainer.className = 'btn-container'
-  divComment.id = "_" + comment.id
-
+  divComment.id = comment.id
   btnDelete.className = 'btn btn-danger btn-delete'
   btnEdit.className = 'btn btn-primary btn-edit'
   btnEdit.textContent = 'edit'
   btnDelete.textContent = 'delete'
-  btnDelete.id = "_" + comment.id
-  btnEdit.id = "_" + comment.id
+  btnDelete.id = comment.id
+  btnEdit.id = comment.id
+  console.log(comment.id)
 
   btnContainer.appendChild(btnEdit)
   btnContainer.appendChild(btnDelete)
@@ -143,9 +141,26 @@ function renderComments(comment) {
 
   commentsContainer.appendChild(divComment)
 
-  btnEdit.addEventListener('click', function () {
+  btnEdit.addEventListener('click', function (e) {
+    openEditModal()
+
+    editId = e.target.id
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        db.collection('comments')
+          .doc(editId)
+          .get()
+          .then(doc => {
+            if (doc.exists) {
+              let data = doc.data()
+              textInput.value = data.text
+            }
+          })
+      }
+    })
 
   })
+
 
   btnDelete.addEventListener('click', function (e) {
     deleteId = e.target.id
@@ -184,10 +199,10 @@ auth.onAuthStateChanged(user => {
           parentDiv.remove()
           console.log('removed')
         } else if (el.type === 'added') {
-          renderData({ ...el.doc.data(), id: el.doc.id })
+          renderComments({ ...el.doc.data(), id: el.doc.id })
         } else if (el.type == 'modified') {
           parentDiv.remove()
-          renderData({ ...el.doc.data(), id: el.doc.id })
+          renderComments({ ...el.doc.data(), id: el.doc.id })
         }
       })
       query.then((snapchot) => {
@@ -195,4 +210,33 @@ auth.onAuthStateChanged(user => {
       })
     })
   }
+})
+
+function openEditModal() {
+  editModal.style.display = 'flex'
+}
+
+
+function closeEditModal() {
+  editModal.style.display = 'none'
+}
+
+
+editForm.addEventListener('submit', function (e) {
+  e.preventDefault()
+
+  let data = {
+    text: textInput.value,
+
+  }
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      let item = db.collection('comments').doc(editId)
+
+      item.get().then(doc => item.update(data ))
+    }
+    closeEditModal()
+  })
+
+
 })
