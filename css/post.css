@@ -146,8 +146,11 @@ blockquote {
   background: var(--warning)
 }
 
-.btn-delete {
+.btn-delete,.btn-danger {
   background: var(--danger)
+}
+.btn-success{
+  background:var(--success);
 }
 
 .comments {

@@ -6,7 +6,8 @@ let editId = ''
 let editModal = document.getElementById('editCommentModal')
 let textInput = document.querySelector('[name="title"]')
 let editForm = document.querySelector('#editCommentForm')
-
+let btnLike = document.querySelector('.like')
+let btnDisLike = document.querySelector('.dislike')
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -21,7 +22,7 @@ auth.onAuthStateChanged(user => {
   }
 })
 
-function renderData(postObject) {
+function renderData (postObject) {
   let img = document.querySelector('.post-cover')
   img.src = postObject.photo
 
@@ -33,7 +34,7 @@ function renderData(postObject) {
 
   let category = document.querySelector('.category')
   category.textContent = postObject.category
-  console.log(postObject)
+
 
   let date = document.querySelector('.date')
   let dateValue = postObject.date.split(',')[0]
@@ -41,8 +42,6 @@ function renderData(postObject) {
 
   let time = document.querySelector('.time')
   time.textContent = postObject.readingTime + ' ' + 'минут  чтения'
-
-
 }
 let formComments = document.querySelector('.comment-form')
 let commentCount = document.querySelector('.comment-count')
@@ -55,23 +54,22 @@ formComments.addEventListener('submit', function (e) {
   let commentId = new Date().getTime()
   let date = new Date().toLocaleString('ru-RU')
 
-
-  auth.onAuthStateChanged((user) => {
-    if (!user) return;
+  auth.onAuthStateChanged(user => {
+    if (!user) return
 
     let data = {
       text: text,
       created_at: date,
       user: user.uid,
-      post: id,
-    };
+      post: id
+    }
 
     db.collection('users')
       .doc(user.uid)
       .get()
-      .then((doc) => {
-        const username = doc.data().username;
-        data.author = username;
+      .then(doc => {
+        const username = doc.data().username
+        data.author = username
 
         db.collection('comments')
           .doc('_' + commentId)
@@ -79,34 +77,31 @@ formComments.addEventListener('submit', function (e) {
 
         let comments = getComments()
 
-        comments.then((snapchot) => {
+        comments.then(snapchot => {
           commentCount.textContent = snapchot.size
 
           commentsContainer.innerHTML = ''
 
-          snapchot.forEach((el) => {
+          snapchot.forEach(el => {
             let comment = el.data()
             renderComments(comment)
           })
         })
-
-      });
+      })
     formComments.reset()
   })
 })
 
 let query = getComments()
+getCount('likes')
+getCount('dislikes')
 
 
-
-
-
-function getComments() {
+function getComments () {
   return db.collection('comments').where('post', '==', id).get()
-
 }
 
-function renderComments(comment) {
+function renderComments (comment) {
   let divComment = document.createElement('div')
   let userData = document.createElement('div')
   let btnEdit = document.createElement('button')
@@ -120,7 +115,6 @@ function renderComments(comment) {
   btnDelete.textContent = 'delete'
   btnDelete.id = comment.id
   btnEdit.id = comment.id
-  console.log(comment.id)
 
   btnContainer.appendChild(btnEdit)
   btnContainer.appendChild(btnDelete)
@@ -158,9 +152,7 @@ function renderComments(comment) {
           })
       }
     })
-
   })
-
 
   btnDelete.addEventListener('click', function (e) {
     deleteId = e.target.id
@@ -169,21 +161,20 @@ function renderComments(comment) {
   })
 }
 
-
 let deleteModal = document.getElementById('deleteModal')
 let closeBtn = deleteModal.querySelector('.btn-cancel')
 
-function openDeleteModal() {
+function openDeleteModal () {
   deleteModal.style.display = 'flex'
 }
 
-function closeDeleteModal() {
+function closeDeleteModal () {
   deleteModal.style.display = 'none'
 }
 
 closeBtn.onclick = closeDeleteModal
 
-function confirmDelete() {
+function confirmDelete () {
   auth.onAuthStateChanged(user => {
     db.collection('comments').doc(deleteId).delete()
   })
@@ -205,38 +196,104 @@ auth.onAuthStateChanged(user => {
           renderComments({ ...el.doc.data(), id: el.doc.id })
         }
       })
-      query.then((snapchot) => {
+      query.then(snapchot => {
         commentCount.textContent = snapchot.size
       })
     })
   }
 })
 
-function openEditModal() {
+function openEditModal () {
   editModal.style.display = 'flex'
 }
 
-
-function closeEditModal() {
+function closeEditModal () {
   editModal.style.display = 'none'
 }
-
 
 editForm.addEventListener('submit', function (e) {
   e.preventDefault()
 
   let data = {
-    text: textInput.value,
-
+    text: textInput.value
   }
   auth.onAuthStateChanged(user => {
     if (user) {
       let item = db.collection('comments').doc(editId)
 
-      item.get().then(doc => item.update(data ))
+      item.get().then(doc => item.update(data))
     }
     closeEditModal()
   })
-
-
 })
+
+btnLike.addEventListener('click', async function (e) {
+  const user = auth.currentUser
+  if (!user) return
+
+  const exists = await isExists('likes')
+  if (exists) return
+
+  const likeId = new Date().getTime()
+
+  await db.collection('likes')
+    .doc('_' + likeId)
+    .set({
+      user: user.uid,
+      post: id
+    })
+
+  getCount('likes')
+})
+
+
+btnDisLike.addEventListener('click', async function (e) {
+  const user = auth.currentUser
+  if (!user) return
+
+  const exists = await isExists('dislikes')
+  if (exists) return
+
+  const dislikeId =new Date().getTime() 
+
+  await db.collection('dislikes')
+    .doc('_' + dislikeId)
+    .set({
+      user: user.uid,
+      post: id
+    })
+
+  getCount('dislikes')
+})
+
+// Реализация likes & disllikes без основной логиики продлолжаем во вторник
+let likes = document.querySelector('.count-likes')
+let dislikes = document.querySelector('.count-dislikes')
+
+
+function getCount (tableName) {
+  let cnt = db.collection(tableName).where('post', '==', id).get()
+  cnt.then(snapchot => {
+    if(tableName == 'likes') likes.textContent = snapchot.size
+    if(tableName == 'dislikes') dislikes.textContent = snapchot.size
+  })
+}
+
+ async function isExists (table) {
+   let user = auth.currentUser
+   if(!user) return
+
+    let exists = await db
+      .collection(table)
+      .where('post', '==', id)
+      .where('user', '==', user.uid)
+      .get()
+    return exists.size>0
+}
+function removeData(tableName){
+
+}
+
+
+// вместо return при проаерке  лайка убировть его
+// визуально показать что лайк прожат
