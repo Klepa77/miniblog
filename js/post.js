@@ -19,6 +19,7 @@ auth.onAuthStateChanged(user => {
 
         renderData(data)
       })
+    updateLikeButtons()
   }
 })
 
@@ -34,7 +35,6 @@ function renderData (postObject) {
 
   let category = document.querySelector('.category')
   category.textContent = postObject.category
-
 
   let date = document.querySelector('.date')
   let dateValue = postObject.date.split(',')[0]
@@ -93,9 +93,7 @@ formComments.addEventListener('submit', function (e) {
 })
 
 let query = getComments()
-getCount('likes')
-getCount('dislikes')
-
+setupRealtimeListeners()
 
 function getComments () {
   return db.collection('comments').where('post', '==', id).get()
@@ -231,12 +229,25 @@ btnLike.addEventListener('click', async function (e) {
   const user = auth.currentUser
   if (!user) return
 
-  const exists = await isExists('likes')
-  if (exists) return
+  const likeExists = await isExists('likes')
+  const dislikeExists = await isExists('dislikes')
+  
+  if(dislikeExists){
+    await removeData('dislikes')
+
+  }
+
+
+  if (likeExists) {
+    await removeData('likes')
+
+    return
+  }
 
   const likeId = new Date().getTime()
 
-  await db.collection('likes')
+  await db
+    .collection('likes')
     .doc('_' + likeId)
     .set({
       user: user.uid,
@@ -246,17 +257,27 @@ btnLike.addEventListener('click', async function (e) {
   getCount('likes')
 })
 
-
 btnDisLike.addEventListener('click', async function (e) {
   const user = auth.currentUser
   if (!user) return
 
-  const exists = await isExists('dislikes')
-  if (exists) return
+  const dislikeExists = await isExists('dislikes')
+  const likeExists = await isExists('likes')
+  
+  if(likeExists){
+  await removeData('likes')
 
-  const dislikeId =new Date().getTime() 
+  }
 
-  await db.collection('dislikes')
+  if (dislikeExists) {
+    await removeData('dislikes')
+    return
+  }
+
+  const dislikeId = new Date().getTime()
+
+  await db
+    .collection('dislikes')
     .doc('_' + dislikeId)
     .set({
       user: user.uid,
@@ -270,30 +291,87 @@ btnDisLike.addEventListener('click', async function (e) {
 let likes = document.querySelector('.count-likes')
 let dislikes = document.querySelector('.count-dislikes')
 
+async function getCount (tableName) {
+  let cnt = await db.collection(tableName).where('post', '==', id).get()
 
-function getCount (tableName) {
-  let cnt = db.collection(tableName).where('post', '==', id).get()
-  cnt.then(snapchot => {
-    if(tableName == 'likes') likes.textContent = snapchot.size
-    if(tableName == 'dislikes') dislikes.textContent = snapchot.size
+  if (tableName == 'likes') {
+    likes.textContent = cnt.size
+  }
+  if (tableName == 'dislikes') {
+    dislikes.textContent = cnt.size
+  }
+}
+async function isExists (table) {
+  let user = auth.currentUser
+  if (!user) return
+
+  let exists = await db
+    .collection(table)
+    .where('post', '==', id)
+    .where('user', '==', user.uid)
+    .get()
+  return exists.size > 0
+}
+async function removeData (tableName) {
+  let user = auth.currentUser
+  let snapchot = await db
+    .collection(tableName)
+    .where('post', '==', id)
+    .where('user', '==', user.uid)
+    .get()
+  const userLikes = db.batch()
+  snapchot.forEach(doc => {
+    userLikes.delete(doc.ref)
   })
+  await userLikes.commit()
 }
 
- async function isExists (table) {
-   let user = auth.currentUser
-   if(!user) return
+async function updateUserLikeStatus () {
+  const user = auth.currentUser
+  if (!user) return
 
-    let exists = await db
-      .collection(table)
-      .where('post', '==', id)
-      .where('user', '==', user.uid)
-      .get()
-    return exists.size>0
-}
-function removeData(tableName){
-
+  const likeExists = await isExists('likes')
+  if (likeExists) {
+    btnLike.classList.add('btn-success')
+  } else {
+    btnLike.classList.remove('btn-success')
+  }
 }
 
+async function updateUserDislikeStatus () {
+  const user = auth.currentUser
+  if (!user) return
 
-// вместо return при проаерке  лайка убировть его
-// визуально показать что лайк прожат
+  const dislikeExists = await isExists('dislikes')
+  if (dislikeExists) {
+    btnDisLike.classList.add('btn-danger')
+  } else {
+    btnDisLike.classList.remove('btn-danger')
+  }
+}
+
+async function updateLikeButtons () {
+  await updateUserLikeStatus()
+  await updateUserDislikeStatus()
+}
+
+function setupRealtimeListeners () {
+  // Слушатель для лайков
+  db.collection('likes')
+    .where('post', '==', id)
+    .onSnapshot(snapshot => {
+      likes.textContent = snapshot.size
+      updateUserLikeStatus()
+    })
+
+  // Слушатель для дизлайков
+  db.collection('dislikes')
+    .where('post', '==', id)
+    .onSnapshot(snapshot => {
+      dislikes.textContent = snapshot.size
+      updateUserDislikeStatus()
+    })
+}
+
+// Сделать логику удаления лайка при нажаотия дизлайка и наоборот 
+
